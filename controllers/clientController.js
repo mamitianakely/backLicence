@@ -1,4 +1,4 @@
-const { createClient, getClients, updateClient, getClientByIdFromModel, deleteClientById } = require('../models/clientModel'); // Importation des fonctions nécessaires
+const { createClient, getClients, updateClient, getClientByIdFromModel, deleteClientById, getTotalClients } = require('../models/clientModel'); // Importation des fonctions nécessaires
 
 // Créer un nouveau client
 const addClient = async (req, res) => {
@@ -56,4 +56,14 @@ const deleteClient = async (req, res) => {
   }
 };
 
-module.exports = { addClient, getAllClients, modifyClient, getClientById, deleteClient };
+// Récupérer le nombre total de clients
+const getClientStats = async (req, res) => {
+  try {
+    const totalClients = await getTotalClients();
+    res.json({ totalClients });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { addClient, getAllClients, modifyClient, getClientById, deleteClient, getClientStats  };

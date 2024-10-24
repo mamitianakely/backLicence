@@ -14,7 +14,7 @@ const getPermisById = async (numPermis) => {
         from permis p join "avisPaiement" a on p."numAvis" = a."numAvis"
         join devis v on a."numDevis" = v."numDevis"
         join demande d on v."numDemande" = d."numDemande"
-        join client c on d."numChrono" = c."numChrono"      
+        join client c on d."numChrono" = c."numChrono"
         WHERE p."numPermis" = $1;
     `;
     const result = await pool.query(query, [numPermis]);

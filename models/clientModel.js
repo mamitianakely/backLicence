@@ -43,5 +43,11 @@ const deleteClientById = async (numChrono) => {
   );
 };
 
+// Récupérer le nombre total de clients
+const getTotalClients = async () => {
+  const result = await pool.query('SELECT COUNT(*) AS total FROM client');
+  return result.rows[0].total;
+};
 
-module.exports = { createClient, getClients, updateClient, getClientByIdFromModel, deleteClientById };
+
+module.exports = { createClient, getClients, updateClient, getClientByIdFromModel, deleteClientById, getTotalClients  };

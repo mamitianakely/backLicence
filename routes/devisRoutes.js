@@ -1,6 +1,6 @@
 const express= require('express');
 const router = express.Router();
-const { addDevis, getAllDevis, deleteDevis } = require('../controllers/devisController');
+const { addDevis, getAllDevis, deleteDevis, getTotalDevis, fetchAverageDevis, fetchMinMaxDevis } = require('../controllers/devisController');
 
 //routes pour ajouter un devis
 router.post('/', addDevis);
@@ -10,6 +10,15 @@ router.get('/', getAllDevis);
 
 // Route pour supprimer un devis
 router.delete('/:numDevis', deleteDevis); // Nouvelle route pour supprimer un client
+
+// Route pour obtenir le nombre total de devis générés
+router.get('/total-devis', getTotalDevis);
+
+// Route pour obtenir le montant moyen des devis
+router.get('/average', fetchAverageDevis);
+
+// Route pour min et max de devis
+router.get('/minmax', fetchMinMaxDevis);
 
 
 module.exports = router;

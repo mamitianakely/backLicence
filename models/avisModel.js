@@ -2,13 +2,13 @@ const { pool } = require('../config/database');
 
 // créer un nouveau demande
 const createAvis = async (avisData) => {
-    const { numAvis, numDevis, numQuittance, dateAvis } = avisData;
-    const result = await pool.query(
-      'INSERT INTO "avisPaiement" ("numAvis", "numDevis", "numQuittance", "dateAvis") VALUES ($1, $2, $3, $4) RETURNING *',
-      [numAvis, numDevis, numQuittance, dateAvis]
-    );
-    return result.rows[0];
-  };
+  const { numAvis, numDevis, numQuittance, dateAvis } = avisData;
+  const result = await pool.query(
+    'INSERT INTO "avisPaiement" ("numAvis", "numDevis", "numQuittance", "dateAvis") VALUES ($1, $2, $3, $4) RETURNING *',
+    [numAvis, numDevis, numQuittance, dateAvis]
+  );
+  return result.rows[0];
+};
 
 // Récupérer tous les avis 
 const getAvis = async () => {
@@ -50,5 +50,21 @@ const migrateToPermis = async (avisData) => {
   await pool.query(query, values);
 };
 
+const getAvisById = async (numAvis) => {
+  try {
+    const query = `
+      SELECT c."nomClient", ap."numQuittance", d."lieu", dv."prixLongueur", dv."prixLargeur", dv."montant" 
+	    FROM "avisPaiement" ap JOIN devis dv ON ap."numDevis" = dv."numDevis"
+	    JOIN demande d ON dv."numDemande" = d."numDemande"
+	    JOIN client c ON d."numChrono" = c."numChrono"
+      WHERE ap."numAvis" = $1`;
+    const result = await pool.query(query, [numAvis]);
+    return result.rows[0];
+  } catch (error) {
+    console.error('Erreur lors de la récupération:', error);
+    throw error;
+  }
+}
 
-module.exports = { createAvis, getAvis, deleteAvisById, updateEtatAvis, getAvisByNum, migrateToPermis };
+
+module.exports = { createAvis, getAvis, deleteAvisById, updateEtatAvis, getAvisByNum, migrateToPermis, getAvisById };
