@@ -64,7 +64,42 @@ const getAvisById = async (numAvis) => {
     console.error('Erreur lors de la récupération:', error);
     throw error;
   }
-}
+};
+
+// Fonction pour récupérer le nombre d'avis de paiement acceptés
+const getCountAcceptedPaiements = async () => {
+  const query = `SELECT COUNT(*) AS "acceptedCount" FROM "avisPaiement" WHERE etat = 'payé'`;
+  const result = await pool.query(query);
+  return parseInt(result.rows[0].acceptedCount, 10) || 0;
+};
+
+const getPaiementsByState = async () => {
+  const query = `SELECT etat, COUNT(*) AS count FROM "avisPaiement" GROUP BY etat`;
+  const result = await pool.query(query);
+  return result.rows;
+};
+
+// Fonction pour compter le nombre total d'avis de paiement
+const countTotalAvisPaiement = async () => {
+  const result = await pool.query('SELECT COUNT(*) AS total FROM "avisPaiement"');
+  return result.rows[0].total;
+};
+
+// Fonction pour rechercher des avis entre deux dates
+const findAvisBetweenDates = async (startDate, endDate) => {
+  try {
+    const result = await pool.query(
+      `SELECT a."numAvis", a."numQuittance", a."dateAvis", a.etat, d."montant", c."nomClient" FROM "avisPaiement" a LEFT JOIN devis d ON a."numDevis" = d."numDevis"
+       LEFT JOIN demande dem ON d."numDemande" = dem."numDemande" LEFT JOIN client c ON dem."numChrono" = c."numChrono" WHERE a."dateAvis" BETWEEN $1 AND $2`,
+      [startDate, endDate]
+    );
+    return result.rows;
+  } catch (err) {
+    throw err;
+  }
+};
 
 
-module.exports = { createAvis, getAvis, deleteAvisById, updateEtatAvis, getAvisByNum, migrateToPermis, getAvisById };
+module.exports = { createAvis, getAvis, deleteAvisById, updateEtatAvis, getAvisByNum, migrateToPermis, 
+  getAvisById,getCountAcceptedPaiements, 
+  getPaiementsByState, countTotalAvisPaiement, findAvisBetweenDates };

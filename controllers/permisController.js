@@ -1,4 +1,5 @@
-const { getPermis, getPermisById } = require('../models/permisModel');
+const { getPermis, getPermisById, getTotalPermis, getMontantTotalQuittances, findPermisBetweenDates } = require('../models/permisModel');
+const { getTotalDemandesFromDB } = require('../models/demandeModel');
 const PDFDocument = require('pdfkit');
 const path = require('path');
 
@@ -46,6 +47,7 @@ const generatePermisPdf = async (req, res) => {
         doc.image(logoLeftPath, 40, 100, { width: 60 }); // Positionner le logo à gauche
         doc.moveDown(1); // Espacement entre le logo et le texte
 
+        
         // Positionner le contenu à gauche (Commune Urbaine)
         const sameLevelY = 160; // Y pour aligner logo et texte de gauche
         doc.fontSize(14).font('Helvetica-Bold').text("COMMUNE URBAINE DE", 40, sameLevelY, { align: 'left' });
@@ -96,11 +98,7 @@ const generatePermisPdf = async (req, res) => {
         doc.fontSize(12).font('Helvetica-Bold').text("FANOMEZAN-DALANA", rightTextX, sameLevelY, { align: 'left' });
         doc.fontSize(12).font('Helvetica-Bold').text(`N°${permisData.numPermis} - CUF- SDU & H - 24`, rightTextX, sameLevelY + 20, { align: 'left' });
         doc.fontSize(12).font('Helvetica-Bold').text("Mankato : FANORENANA TRANO", rightTextX, sameLevelY + 40, { align: 'left' });
-        doc.fontSize(12).font('Helvetica').text(`Araka ny fangatahana nataon'i ${permisData.nomClient}`, rightTextX, sameLevelY + 60, { align: 'left' });
-        doc.text(`Noraiketina tamin'ny ${new Date(permisData.dateDemande).toLocaleDateString('fr-FR')}, laharana- ${permisData.numPermis}`, rightTextX, sameLevelY + 75, { align: 'left' });
-        doc.text(`Araka ny quittance ${permisData.numQuittance}, tamin'ny ${new Date(permisData.dateAvis).toLocaleDateString('fr-FR')}`, rightTextX, sameLevelY + 90, { align: 'left' });
-
-
+        doc.fontSize(12).font('Helvetica').text(`Araka ny fangatahana nataon'i ${permisData.nomClient} Noraiketina tamin'ny ${new Date(permisData.dateDemande).toLocaleDateString('fr-FR')}, , laharana- ${permisData.numPermis} Araka ny quittance ${permisData.numQuittance}, tamin'ny ${new Date(permisData.dateAvis).toLocaleDateString('fr-FR')}`, rightTextX, sameLevelY + 60, { align: 'left' });
         doc.moveDown(2);
 
         // Terminer le document PDF
@@ -112,7 +110,64 @@ const generatePermisPdf = async (req, res) => {
         console.error("Erreur lors de la génération du PDF :", error);
         res.status(500).json({ message: 'Erreur lors de la génération du PDF.', error: error.message });
     }
+};
+
+const fetchTotalPermis = async (req, res) => {
+    try {
+        const total = await getTotalPermis();
+        res.json({ total });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erreur serveur');
+    }
+};
+
+// Fonction pour calculer le taux d'approbation
+const getTauxApprobation = async (req, res) => {
+    try {
+        const totalDemandes = await getTotalDemandesFromDB(); // Utilisation de la fonction existante
+        const totalPermis = await getTotalPermis();
+        
+        // Calcul du taux d'approbation (en pourcentage)
+        const tauxApprobation = totalDemandes > 0 ? (totalPermis / totalDemandes) * 100 : 0;
+
+        res.status(200).json({
+            totalDemandes,
+            totalPermis,
+            tauxApprobation: tauxApprobation.toFixed(2) // Retourner avec deux décimales
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erreur lors de la récupération du taux d\'approbation' });
+    }
+};
+
+const fetchMontantTotalQuittances = async (req, res) => {
+    try {
+        const montantTotalQuittances = await getMontantTotalQuittances();
+        res.status(200).json({ montantTotalQuittances }); // Cela devrait être correct
+    } catch (error) {
+        console.error("Erreur lors de la récupération du montant total des quittances:", error);
+        res.status(500).json({ message: "Erreur serveur" });
+    }
 }
 
+// Contrôleur pour rechercher des permis entre deux dates
+const getPermisBetweenDates = async (req, res) => {
+    const { startDate, endDate } = req.query;
+  
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: "Les dates de début et de fin sont requises." });
+    }
+  
+    try {
+      const permis = await findPermisBetweenDates(startDate, endDate);
+      res.status(200).json(permis);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ message: "Erreur serveur lors de la récupération des permis." });
+    }
+  };
 
-module.exports = { getAllPermis, generatePermisPdf };
+
+module.exports = { getAllPermis, generatePermisPdf, fetchTotalPermis, getTauxApprobation, fetchMontantTotalQuittances, getPermisBetweenDates };

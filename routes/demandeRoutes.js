@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { addDemande, getAllDemandes, getDemandeById, modifyDemande, 
-    deleteDemande, getPendingDemandes, getDemandesStatsByTypeAndMonth, fetchDemandesByMonth,  getTotalDemandes } = require('../controllers/demandeController');
+    deleteDemande, getPendingDemandes, getDemandesStatsByTypeAndMonth, 
+    fetchDemandesByMonth,  getTotalDemandes, getCountOfDemandsAwaitingDevis, getConversionRate 
+    , getDemandsWithAvisPercentage, getDemandsBetweenDates} = require('../controllers/demandeController');
 
 // Route pour ajouter un demande
 router.post('/', addDemande);
@@ -31,5 +33,15 @@ router.get('/stats/monthly', fetchDemandesByMonth);
 
 // Route pour obtenir le total des demandes
 router.get('/stats/total', getTotalDemandes);
+
+router.get('/stats/count-awaiting-devis', getCountOfDemandsAwaitingDevis);
+
+router.get('/stats/conversion-rate', getConversionRate);
+
+// Route pour obtenir le pourcentage des demandes avec avis de paiement
+router.get('/stats/percentage-with-avis', getDemandsWithAvisPercentage);
+
+// Route pour rechercher des demands entre deux dates
+router.get('/searchDateDemands', getDemandsBetweenDates);
 
 module.exports = router;

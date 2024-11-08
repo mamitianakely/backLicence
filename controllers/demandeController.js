@@ -1,5 +1,7 @@
 const { createDemande, getDemandes, getDemandeByIdFromModel, updateDemande, 
-  deleteDemandeById, getPendingDemandesCount, getDemandesByTypeAndMonth, getDemandesByMonth, getTotalDemandesFromDB } = require('../models/demandeModel');
+  deleteDemandeById, getPendingDemandesCount, getDemandesByTypeAndMonth, 
+  getDemandesByMonth, getTotalDemandesFromDB, getCountOfDemandsAwaitingDevisFromDB, getConversionRateFromDB,
+  calculateDemandsWithAvisPercentage, findDemandsBetweenDates  } = require('../models/demandeModel');
 
 // créer une demande
 const addDemande = async (req, res) => {
@@ -99,5 +101,53 @@ const getTotalDemandes = async (req, res) => {
   }
 };
 
-module.exports = { addDemande, getAllDemandes, getDemandeById, modifyDemande, 
-  deleteDemande, getPendingDemandes, getDemandesStatsByTypeAndMonth, fetchDemandesByMonth, getTotalDemandes };
+
+const getCountOfDemandsAwaitingDevis = async (req, res) => {
+  try {
+    const demandsAwaitingDevisCount = await getCountOfDemandsAwaitingDevisFromDB();
+    res.status(200).json({ count: demandsAwaitingDevisCount }); // Changez ici pour renvoyer "count"
+  } catch (error) {
+    console.error('Erreur lors de la récupération du nombre de demandes en attente de devis:', error);
+    res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+};
+
+const getConversionRate = async (req, res) => {
+  try {
+    const conversionRate = await getConversionRateFromDB();
+    res.status(200).json({ conversionRate }); // Retourne la conversionRate dans un objet JSON
+  } catch (error) {
+    console.error('Erreur lors de la récupération du taux de conversion:', error);
+    res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+};
+
+const getDemandsWithAvisPercentage = async (req, res) => {
+  try {
+    const percentage = await calculateDemandsWithAvisPercentage();
+    res.status(200).json({ percentage });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors du calcul du pourcentage des demandes avec avis de paiement', error });
+  }
+};
+
+// Contrôleur pour rechercher des demandes entre deux dates
+const getDemandsBetweenDates = async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  if (!startDate || !endDate) {
+    return res.status(400).json({ message: "Les dates de début et de fin sont requises." });
+  }
+
+  try {
+    const demande = await findDemandsBetweenDates(startDate, endDate);
+    res.status(200).json(demande);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: "Erreur serveur lors de la récupération des demandes." });
+  }
+};
+
+module.exports = { addDemande, getAllDemandes, getDemandeById, modifyDemande, getDemandsBetweenDates,
+  deleteDemande, getPendingDemandes, getDemandesStatsByTypeAndMonth, fetchDemandesByMonth, 
+  getTotalDemandes, getCountOfDemandsAwaitingDevis, getConversionRate, getDemandsWithAvisPercentage };

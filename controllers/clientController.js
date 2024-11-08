@@ -1,4 +1,5 @@
-const { createClient, getClients, updateClient, getClientByIdFromModel, deleteClientById, getTotalClients } = require('../models/clientModel'); // Importation des fonctions nécessaires
+const { createClient, getClients, updateClient, getClientByIdFromModel, 
+  deleteClientById, getTotalClients, getClientsDistributionByRegion, getClientsWithoutDemandsCount } = require('../models/clientModel'); // Importation des fonctions nécessaires
 
 // Créer un nouveau client
 const addClient = async (req, res) => {
@@ -66,4 +67,34 @@ const getClientStats = async (req, res) => {
   }
 };
 
-module.exports = { addClient, getAllClients, modifyClient, getClientById, deleteClient, getClientStats  };
+// Contrôleur pour récupérer la distribution des clients par région
+// Contrôleur pour récupérer la distribution des clients par région
+const fetchClientsDistributionByRegion = async (req, res) => {
+
+  try {
+    const distribution = await getClientsDistributionByRegion();
+    
+    if (distribution.length === 0) {
+      return res.status(404).json({ message: "Aucune région trouvée pour les clients" });
+    }
+    res.status(200).json(distribution);
+  } catch (error) {
+    console.error("Erreur lors de la récupération de la distribution des clients par région :", error.message);
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+};
+
+// Contrôleur pour obtenir le nombre de clients sans demande
+const getClientsWithoutDemands = async (req, res) => {
+  try {
+    const count = await getClientsWithoutDemandsCount();
+    res.status(200).json({ clientsSansDemande: count });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des clients sans demande:', error);
+    res.status(500).json({ message: "Erreur lors de la récupération des clients sans demande" });
+  }
+};
+
+
+module.exports = { addClient, getAllClients, modifyClient, getClientById, deleteClient, 
+  getClientStats, fetchClientsDistributionByRegion, getClientsWithoutDemands };

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { addClient, getAllClients, modifyClient, getClientById, deleteClient, getClientStats } = require('../controllers/clientController'); // Importer le contrôleur
+const { addClient, getAllClients, modifyClient,
+     getClientById, deleteClient, getClientStats, fetchClientsDistributionByRegion,
+     getClientsWithoutDemands} = require('../controllers/clientController'); // Importer le contrôleur
 
 // Route pour ajouter un client
 router.post('/', addClient);
@@ -19,5 +21,11 @@ router.delete('/:numChrono', deleteClient); // Nouvelle route pour supprimer un 
 
 // Route pour obtenir le nombre total de clients
 router.get('/stats/total', getClientStats);
+
+// Route pour obtenir la distribution des clients par zone géographique
+router.get('/stats/distribution', fetchClientsDistributionByRegion);
+
+// Route pour obtenir le nombre de clients sans demande
+router.get('/stats/sans-demands', getClientsWithoutDemands);
 
 module.exports = router;

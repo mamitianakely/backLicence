@@ -59,8 +59,8 @@ const fetchMinMaxDevis = async (req, res) => {
     try {
         // Appelez la fonction pour obtenir les montants min et max
         const { minMontant, maxMontant } = await getMinMaxDevis();
-        console.log('Montant minimum:', minMontant); // Vérifiez cette ligne
-        console.log('Montant maximum:', maxMontant); // Vérifiez cette ligne
+        // console.log('Montant minimum:', minMontant); // Vérifiez cette ligne
+        // console.log('Montant maximum:', maxMontant); // Vérifiez cette ligne
         
         // Renvoie les valeurs correctes
         res.json({ minMontant, maxMontant }); 

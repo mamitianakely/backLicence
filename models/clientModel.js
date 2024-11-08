@@ -2,10 +2,10 @@ const { pool } = require('../config/database');
 
 // Créer un nouveau client
 const createClient = async (clientData) => {
-  const { numChrono, nomClient, adresse, contact } = clientData;
+  const { nomClient, adresse, contact } = clientData;
   const result = await pool.query(
-    'INSERT INTO client ("numChrono", "nomClient", "adresse", "contact") VALUES ($1, $2, $3, $4) RETURNING *',
-    [numChrono, nomClient, adresse, contact]
+    'INSERT INTO client ("nomClient", "adresse", "contact") VALUES ($1, $2, $3) RETURNING *',
+    [ nomClient, adresse, contact]
   );
   return result.rows[0];
 };
@@ -49,5 +49,31 @@ const getTotalClients = async () => {
   return result.rows[0].total;
 };
 
+// Fonction pour obtenir la répartition des clients par zone géographique
 
-module.exports = { createClient, getClients, updateClient, getClientByIdFromModel, deleteClientById, getTotalClients  };
+const getClientsDistributionByRegion = async () => {
+  try {
+    const query = `SELECT adresse AS region, COUNT(*) AS "clientCount" FROM client GROUP BY adresse ORDER BY "clientCount" DESC;`;
+    const result = await pool.query(query);
+     // Log des résultats de la requête
+    return result.rows;
+  } catch (error) {
+    console.error("Erreur lors de l'exécution de la requête SQL :", error);
+    throw error;
+  }
+};
+
+// Fonction pour obtenir le nombre de clients sans demande
+const getClientsWithoutDemandsCount = async () => {
+  try {
+    const result = await pool.query(`SELECT COUNT(*) AS "clientsSansDemande" FROM client c LEFT JOIN demande d ON c."numChrono" = d."numChrono"
+      WHERE d."numDemande" IS NULL;`);
+    return result.rows[0].clientsSansDemande;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+module.exports = { createClient, getClients, updateClient, getClientByIdFromModel, 
+  deleteClientById, getTotalClients,  getClientsDistributionByRegion, getClientsWithoutDemandsCount };

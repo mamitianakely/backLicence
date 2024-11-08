@@ -83,5 +83,69 @@ const getTotalDemandesFromDB = async () => {
   }
 };
 
+// Fonction pour obtenir le nombre de demandes en attente de devis
+const getCountOfDemandsAwaitingDevisFromDB = async () => {
+  try {
+    const result = await pool.query(`
+      SELECT COUNT(*) AS "demandsAwaitingDevisCount"
+      FROM demande
+      WHERE "numDemande" NOT IN (SELECT "numDemande" FROM devis)
+    `);
+    return result.rows[0].demandsAwaitingDevisCount;
+  } catch (error) {
+    console.error("Erreur lors de la récupération du nombre de demandes en attente de devis:", error);
+    throw error;
+  }
+};
+
+const getConversionRateFromDB = async () => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        (COUNT(DISTINCT dev."numDevis") * 100.0 / NULLIF(COUNT(DISTINCT d."numDemande"), 0)) AS "conversionRate"
+      FROM
+        demande d
+        LEFT JOIN devis dev ON d."numDemande" = dev."numDemande";
+    `);
+    return result.rows[0].conversionRate;
+  } catch (error) {
+    console.error("Erreur lors de la récupération du taux de conversion:", error);
+    throw error;
+  }
+};
+
+// Fonction pour obtenir le nombre de demandes ayant un avis de paiement
+const getDemandsWithAvisCount = async () => {
+  const query = `SELECT COUNT(*) AS total_with_avis FROM demande WHERE "numDemande" IN (SELECT d."numDemande"
+      FROM demande d JOIN devis dv ON d."numDemande" = dv."numDemande" JOIN "avisPaiement" av ON dv."numDevis" = av."numDevis");`;
+  const result = await pool.query(query);
+  return parseInt(result.rows[0].total_with_avis, 10);
+};
+
+// Fonction pour calculer le pourcentage des demandes avec un avis de paiement
+const calculateDemandsWithAvisPercentage = async () => {
+  const totalWithAvis = await getDemandsWithAvisCount();
+  const totalDemandes = await getTotalDemandesFromDB();
+
+  const percentage = (totalWithAvis / totalDemandes) * 100;
+  return percentage;
+};
+
+// Fonction pour rechercher des demandes entre deux dates
+const findDemandsBetweenDates = async (startDate, endDate) => {
+  try {
+    const result = await pool.query(
+      `SELECT d."numDemande", d."dateDemande", d."typeDemande", d."longueur", d."largeur", d."lieu", 
+      c."nomClient" FROM demande d LEFT JOIN client c ON d."numChrono" = c."numChrono" WHERE d."dateDemande" BETWEEN $1 AND $2`,
+      [startDate, endDate]
+    );
+    return result.rows;
+  } catch (err) {
+    throw err;
+  }
+};
+
+
 module.exports = { createDemande, getDemandes, getDemandeByIdFromModel, updateDemande, deleteDemandeById, 
-  getPendingDemandesCount, getDemandesByTypeAndMonth, getDemandesByMonth, getTotalDemandesFromDB };
+  getPendingDemandesCount, getDemandesByTypeAndMonth, getDemandesByMonth, findDemandsBetweenDates,
+  getTotalDemandesFromDB, getCountOfDemandsAwaitingDevisFromDB, getConversionRateFromDB, calculateDemandsWithAvisPercentage };

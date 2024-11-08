@@ -80,7 +80,7 @@ const getMinMaxDevis = async () => {
     const result = await pool.query(query);
     
     // Vérifiez la structure des résultats
-    console.log('Résultat de la requête Min/Max:', result.rows); // Débogage
+    // console.log('Résultat de la requête Min/Max:', result.rows); // Débogage
 
     // Convertissez les valeurs en nombres avant de les renvoyer
     return {
