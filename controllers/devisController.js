@@ -5,7 +5,7 @@ const addDevis = async (req, res) => {
     try {
         //console.log('Données reçues:', req.body); // Ajoute ceci pour voir les données reçues
         const newDevis = await createDevis(req.body);
-        res.status(201).json(newDevis);
+        res.status(201).json({ numDevis: newDevis });
     } catch (error) {
         console.error('Erreur lors de l\'ajout du devis:', error); // Affiche l'erreur dans la console
         res.status(500).json({ error: error.message });

@@ -1,11 +1,11 @@
 const { pool } = require('../config/database');
 
-// créer un nouveau demande
+// créer un nouveau avis
 const createAvis = async (avisData) => {
-  const { numAvis, numDevis, numQuittance, dateAvis } = avisData;
+  const { numDevis, numQuittance, dateAvis } = avisData;
   const result = await pool.query(
-    'INSERT INTO "avisPaiement" ("numAvis", "numDevis", "numQuittance", "dateAvis") VALUES ($1, $2, $3, $4) RETURNING *',
-    [numAvis, numDevis, numQuittance, dateAvis]
+    'INSERT INTO "avisPaiement" ("numDevis", "numQuittance", "dateAvis") VALUES ($1, $2, $3) RETURNING *',
+    [numDevis, numQuittance, dateAvis]
   );
   return result.rows[0];
 };

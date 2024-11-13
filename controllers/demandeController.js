@@ -132,6 +132,7 @@ const getDemandsWithAvisPercentage = async (req, res) => {
 };
 
 // Contrôleur pour rechercher des demandes entre deux dates
+// Contrôleur pour rechercher des demandes entre deux dates
 const getDemandsBetweenDates = async (req, res) => {
   const { startDate, endDate } = req.query;
 
@@ -147,6 +148,8 @@ const getDemandsBetweenDates = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur lors de la récupération des demandes." });
   }
 };
+
+
 
 module.exports = { addDemande, getAllDemandes, getDemandeById, modifyDemande, getDemandsBetweenDates,
   deleteDemande, getPendingDemandes, getDemandesStatsByTypeAndMonth, fetchDemandesByMonth, 

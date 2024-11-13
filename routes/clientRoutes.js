@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const authenticateToken = require('../middleware/authMiddleware');
 const { addClient, getAllClients, modifyClient,
      getClientById, deleteClient, getClientStats, fetchClientsDistributionByRegion,
      getClientsWithoutDemands} = require('../controllers/clientController'); // Importer le contrôleur
+
+
+// Applique le middleware à toutes les routes
+router.use(authenticateToken);
 
 // Route pour ajouter un client
 router.post('/', addClient);

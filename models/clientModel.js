@@ -12,7 +12,7 @@ const createClient = async (clientData) => {
 
 // Récupérer tous les clients
 const getClients = async () => {
-  const result = await pool.query('SELECT * FROM client');
+  const result = await pool.query('SELECT * FROM client order by "numChrono" DESC');
   return result.rows;
 };
 

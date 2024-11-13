@@ -2,13 +2,13 @@ const { pool } = require('../config/database');
 
 // créer un nouveau Devis
 const createDevis = async (devisData) => {
-    const { numDevis, numDemande, prixLongueur, prixLargeur, montant } = devisData;
+    const { numDemande, prixLongueur, prixLargeur, montant } = devisData;
     try {
         const result = await pool.query(
-            'INSERT INTO devis ("numDevis", "numDemande", "prixLongueur", "prixLargeur", "montant") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [numDevis, numDemande, prixLongueur, prixLargeur, montant]
+            'INSERT INTO devis ("numDemande", "prixLongueur", "prixLargeur", "montant") VALUES ($1, $2, $3, $4) RETURNING "numDevis"',
+            [numDemande, prixLongueur, prixLargeur, montant]
         );
-        return result.rows[0];
+        return result.rows[0].numDevis;
     } catch (error) {
         console.error('Erreur lors de l\'insertion dans la base de données:', error);
         throw error; // Propager l'erreur pour la gestion dans le contrôleur

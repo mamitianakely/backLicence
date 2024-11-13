@@ -1,9 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const authenticateToken = require('../middleware/authMiddleware');
 const { addDemande, getAllDemandes, getDemandeById, modifyDemande, 
     deleteDemande, getPendingDemandes, getDemandesStatsByTypeAndMonth, 
     fetchDemandesByMonth,  getTotalDemandes, getCountOfDemandsAwaitingDevis, getConversionRate 
     , getDemandsWithAvisPercentage, getDemandsBetweenDates} = require('../controllers/demandeController');
+
+
+// Applique le middleware à toutes les routes
+router.use(authenticateToken);
 
 // Route pour ajouter un demande
 router.post('/', addDemande);

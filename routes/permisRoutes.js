@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const authenticateToken = require('../middleware/authMiddleware');
 const { getAllPermis, generatePermisPdf, fetchTotalPermis, 
     getTauxApprobation, fetchMontantTotalQuittances, getPermisBetweenDates } = require('../controllers/permisController');
 
+
+// Applique le middleware à toutes les routes
+router.use(authenticateToken);
 
 // Route pour récupérer tous les avis
 router.get('/', getAllPermis);

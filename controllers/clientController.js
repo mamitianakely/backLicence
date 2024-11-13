@@ -1,5 +1,5 @@
 const { createClient, getClients, updateClient, getClientByIdFromModel, 
-  deleteClientById, getTotalClients, getClientsDistributionByRegion, getClientsWithoutDemandsCount } = require('../models/clientModel'); // Importation des fonctions nécessaires
+  deleteClientById, getTotalClients, getClientsDistributionByRegion, getClientsWithoutDemandsCount, getClientsByAddressLetter } = require('../models/clientModel'); // Importation des fonctions nécessaires
 
 // Créer un nouveau client
 const addClient = async (req, res) => {

@@ -1,6 +1,10 @@
 const express= require('express');
 const router = express.Router();
+const authenticateToken = require('../middleware/authMiddleware');
 const { addDevis, getAllDevis, deleteDevis, getTotalDevis, fetchAverageDevis, fetchMinMaxDevis } = require('../controllers/devisController');
+
+// Applique le middleware à toutes les routes
+router.use(authenticateToken);
 
 //routes pour ajouter un devis
 router.post('/', addDevis);

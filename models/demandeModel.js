@@ -12,11 +12,11 @@ const createDemande = async (demandeData) => {
 
 // Récupérer tous les demandes
 const getDemandes = async () => {
-  const result = await pool.query('SELECT demande."numDemande", client."nomClient", demande."dateDemande", demande."typeDemande", demande."longueur", demande."largeur", demande."lieu" FROM client INNER JOIN demande ON client."numChrono" = demande."numChrono"');
+  const result = await pool.query('SELECT demande."numDemande", client."nomClient", demande."dateDemande", demande."typeDemande", demande."longueur", demande."largeur", demande."lieu" FROM client INNER JOIN demande ON client."numChrono" = demande."numChrono" ORDER BY "numDemande" DESC');
   return result.rows;
 };
 
-// Récupérer un client spécifique
+// Récupérer une demande spécifique
 const getDemandeByIdFromModel = async (numDemande) => {
   const result = await pool.query(
     'SELECT * FROM demande WHERE "numDemande" = $1',
@@ -131,7 +131,6 @@ const calculateDemandsWithAvisPercentage = async () => {
   return percentage;
 };
 
-// Fonction pour rechercher des demandes entre deux dates
 const findDemandsBetweenDates = async (startDate, endDate) => {
   try {
     const result = await pool.query(
@@ -144,6 +143,7 @@ const findDemandsBetweenDates = async (startDate, endDate) => {
     throw err;
   }
 };
+
 
 
 module.exports = { createDemande, getDemandes, getDemandeByIdFromModel, updateDemande, deleteDemandeById, 

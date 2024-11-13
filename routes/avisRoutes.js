@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const authenticateToken = require('../middleware/authMiddleware');
 const { addAvis, getAllAvis, deleteAvis, payerAvis, generateFacturePdf, 
     fetchAcceptedPaiementCount, fetchPaiementsByState, getTotalAvisPaiement, getAvisBetweenDates } = require('../controllers/avisController');
+
+
+// Applique le middleware à toutes les routes
+router.use(authenticateToken);
 
 // Route pour ajouter un avis
 router.post('/', addAvis);
