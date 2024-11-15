@@ -2,10 +2,10 @@ const { pool } = require('../config/database');
 
 // créer un nouveau demande
 const createDemande = async (demandeData) => {
-    const { numChrono, dateDemande, typeDemande, longueur, largeur, lieu } = demandeData;
+    const { numDemande, numChrono, dateDemande, typeDemande, longueur, largeur, lieu } = demandeData;
     const result = await pool.query(
-      'INSERT INTO demande ("numChrono", "dateDemande", "typeDemande", "longueur", "largeur", "lieu") VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [numChrono, dateDemande, typeDemande, longueur, largeur, lieu]
+      'INSERT INTO demande ("numDemande", "numChrono", "dateDemande", "typeDemande", "longueur", "largeur", "lieu") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [numDemande, numChrono, dateDemande, typeDemande, longueur, largeur, lieu]
     );
     return result.rows[0];
   };

@@ -7,7 +7,7 @@ const clientRoutes = require('./routes/clientRoutes');
 const responsableRoutes = require('./routes/responsableRoutes');
 const demandeRoutes = require('./routes/demandeRoutes');
 const verificateurRoutes = require('./routes/verificateurRoutes');
-const avisRoutes = require('./routes/avisRoutes');
+//const avisRoutes = require('./routes/avisRoutes');
 const devisRoutes = require('./routes/devisRoutes');
 const permisRoutes = require('./routes/permisRoutes');
 const { connectToDatabase } = require('./config/database');
@@ -35,7 +35,7 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/responsables', responsableRoutes);
 app.use('/api/demandes', demandeRoutes);
 app.use('/api/verificateurs', verificateurRoutes);
-app.use('/api/avis', avisRoutes);
+//app.use('/api/avis', avisRoutes);
 app.use('/api/devis', devisRoutes);
 app.use('/api/permis', permisRoutes);
 

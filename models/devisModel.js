@@ -17,7 +17,7 @@ const createDevis = async (devisData) => {
 
 // Récupérer tous les devis 
 const getDevis = async () => {
-    const result = await pool.query('SELECT devis."numDevis", client."nomClient", devis."prixLongueur", devis."prixLargeur", devis."montant" FROM devis JOIN demande ON devis."numDemande" = demande."numDemande" JOIN client ON demande."numChrono" = client."numChrono"');
+    const result = await pool.query('SELECT devis."numDevis", client."nomClient", devis."prixLongueur", devis."prixLargeur", devis."montant", devis."etat" FROM devis JOIN demande ON devis."numDemande" = demande."numDemande" JOIN client ON demande."numChrono" = client."numChrono"');
     return result.rows;
 }
 
@@ -40,13 +40,24 @@ const fetchTotalDevisFromDB  = async () => {
     }
 };
 
+const getDevisById = async (numDevis) => {
+    try {
+      const query = `SELECT v."numDevis", d."numDemande", c."nomClient", d."typeDemande", d."dateDemande", d."lieu", v."prixLongueur", v."prixLargeur", v."montant" 
+      FROM demande d JOIN client c ON d."numChrono" = c."numChrono" JOIN devis v ON d."numDemande" = v."numDemande" WHERE v."numDevis" = $1 AND v.etat = 'non payé'`;
+      const result = await pool.query(query, [numDevis]);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Erreur lors de la récupération:', error);
+      throw error;
+    }
+  };
+
 // Montant moyen
 const getAverageDevis = async () => {
     const query = 'SELECT AVG(montant) AS "averageMontant" FROM devis';
-    
+
     try {
         const result = await pool.query(query);
-        
         // Vérifiez la structure des résultats
         console.log('Résultat de la requête:', result.rows); // Débogage
 
@@ -89,6 +100,28 @@ const getMinMaxDevis = async () => {
     };
 };
 
+// Mise à jour de l'état du devis
+// Mettre à jour l'état du devis à "payé"
+const updateDevisStateToPaid = async (numDevis) => {
+    const query = `UPDATE devis SET etat = 'payé' WHERE "numDevis" = $1 RETURNING *`;
+    try {
+      const result = await pool.query(query, [numDevis]);
+      return result.rows[0]; // Retourne le devis mis à jour
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du devis:", error);
+      throw error;
+    }
+  };
+  
+//   // Ajout dans la table permis
+// Fonction pour créer un permis
+const createPermis = async (numDevis, numQuittance, datePermis) => {
+    const query = 'INSERT INTO permis ("numDevis", "numQuittance", "datePermis") VALUES ($1, $2, $3) RETURNING *';
+    const result = await pool.query(query, [numDevis, numQuittance, datePermis]);
+    return result.rows[0];
+};
 
 
-module.exports = { createDevis, getDevis, deleteDevisById, fetchTotalDevisFromDB, getAverageDevis, getMinMaxDevis };
+module.exports = { createDevis, getDevis, deleteDevisById, fetchTotalDevisFromDB, getAverageDevis, getMinMaxDevis, getDevisById, 
+    updateDevisStateToPaid, createPermis
+ };

@@ -1,4 +1,4 @@
-const { getPermis, getPermisById, getTotalPermis, getMontantTotalQuittances, findPermisBetweenDates } = require('../models/permisModel');
+const { getPermis, getPermisById, getTotalPermis, getMontantTotalQuittances, findPermisBetweenDates, deletePermis } = require('../models/permisModel');
 const { getTotalDemandesFromDB } = require('../models/demandeModel');
 const PDFDocument = require('pdfkit');
 const path = require('path');
@@ -96,9 +96,9 @@ const generatePermisPdf = async (req, res) => {
         // Positionner le contenu à droite (FANOMEZAN-DALANA) au même niveau que le logo
         const rightTextX = 300; // Position X pour le texte à droite
         doc.fontSize(12).font('Helvetica-Bold').text("FANOMEZAN-DALANA", rightTextX, sameLevelY, { align: 'left' });
-        doc.fontSize(12).font('Helvetica-Bold').text(`N°${permisData.numPermis} - CUF- SDU & H - 24`, rightTextX, sameLevelY + 20, { align: 'left' });
+        doc.fontSize(12).font('Helvetica-Bold').text(`N°${permisData.numDemande} - CUF- SDU & H - 24`, rightTextX, sameLevelY + 20, { align: 'left' });
         doc.fontSize(12).font('Helvetica-Bold').text("Mankato : FANORENANA TRANO", rightTextX, sameLevelY + 40, { align: 'left' });
-        doc.fontSize(12).font('Helvetica').text(`Araka ny fangatahana nataon'i ${permisData.nomClient} Noraiketina tamin'ny ${new Date(permisData.dateDemande).toLocaleDateString('fr-FR')}, , laharana- ${permisData.numPermis} Araka ny quittance ${permisData.numQuittance}, tamin'ny ${new Date(permisData.dateAvis).toLocaleDateString('fr-FR')}`, rightTextX, sameLevelY + 60, { align: 'left' });
+        doc.fontSize(12).font('Helvetica').text(`Araka ny fangatahana nataon'i ${permisData.nomClient} Noraiketina tamin'ny ${new Date(permisData.dateDemande).toLocaleDateString('fr-FR')}, , laharana- ${permisData.numPermis} Araka ny quittance ${permisData.numQuittance}, tamin'ny ${new Date(permisData.datePermis).toLocaleDateString('fr-FR')}`, rightTextX, sameLevelY + 60, { align: 'left' });
         doc.moveDown(2);
 
         // Terminer le document PDF
@@ -169,5 +169,26 @@ const getPermisBetweenDates = async (req, res) => {
     }
   };
 
+  // Fonction pour supprimer un permis
+const deletePermisController = async (req, res) => {
+    const { numPermis } = req.params;  // Récupérer le numPermis à partir des paramètres de la route
+  
+    try {
+      // Appeler le modèle pour supprimer le permis
+      const deletedPermis = await deletePermis(numPermis);
+  
+      if (deletedPermis.length === 0) {
+        return res.status(404).json({ message: 'Permis non trouvé' });  // Si aucun permis n'est trouvé
+      }
+  
+      res.json({ message: 'Permis supprimé avec succès', data: deletedPermis });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Erreur lors de la suppression du permis' });
+    }
+  };
+  
 
-module.exports = { getAllPermis, generatePermisPdf, fetchTotalPermis, getTauxApprobation, fetchMontantTotalQuittances, getPermisBetweenDates };
+
+module.exports = { getAllPermis, generatePermisPdf, fetchTotalPermis, getTauxApprobation, 
+    fetchMontantTotalQuittances, getPermisBetweenDates, deletePermisController };

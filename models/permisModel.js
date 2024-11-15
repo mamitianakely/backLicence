@@ -2,17 +2,18 @@ const { pool } = require('../config/database');
 
 // Recupérer les permis
 const getPermis = async () => {
-  const result = await pool.query('SELECT p."numPermis", c."nomClient", a."numAvis", a."numQuittance", CURRENT_DATE AS "datePermis", dv.montant, d.lieu FROM permis p JOIN "avisPaiement" a ON p."numAvis" = a."numAvis" JOIN devis dv ON a."numDevis" = dv."numDevis" JOIN demande d ON dv."numDemande" = d."numDemande" JOIN client c ON d."numChrono" = c."numChrono" WHERE p."numPermis" IS NOT NULL');
+  const result = await pool.query(`SELECT permis."numPermis", client."nomClient", devis."numDevis", permis."numQuittance", permis."datePermis", 
+    devis."montant", demande."lieu" FROM permis JOIN devis ON permis."numDevis" = devis."numDevis"JOIN demande ON devis."numDemande" = demande."numDemande"
+    JOIN client ON demande."numChrono" = client."numChrono"`);
   return result.rows;
 }
 
 const getPermisById = async (numPermis) => {
   try {
     const query = `
-        select p."numPermis", p."datePermis", c."nomClient", d."dateDemande", a."dateAvis",
-        a."numQuittance", c."adresse", d."longueur", d."largeur", d."lieu"
-        from permis p join "avisPaiement" a on p."numAvis" = a."numAvis"
-        join devis v on a."numDevis" = v."numDevis"
+        select p."numPermis", p."datePermis", c."nomClient", d."dateDemande", d."numDemande",
+        p."numQuittance", c."adresse", d."longueur", d."largeur", d."lieu"
+        from permis p join "devis" v on p."numDevis" = v."numDevis"
         join demande d on v."numDemande" = d."numDemande"
         join client c on d."numChrono" = c."numChrono"
         WHERE p."numPermis" = $1;
@@ -58,5 +59,12 @@ const findPermisBetweenDates = async (startDate, endDate) => {
   }
 };
 
+// Fonction pour supprimer un permis par son numPermis
+const deletePermis = async (numPermis) => {
+  const result = await pool.query(` DELETE FROM permis WHERE "numPermis" = $1 RETURNING *;
+  `, [numPermis]);  // Retourne les informations du permis supprimé
+  return result.rows;  // Renvoie les données du permis supprimé
+};
 
-module.exports = { getPermis, getPermisById, getTotalPermis, getMontantTotalQuittances, findPermisBetweenDates }; 
+
+module.exports = { getPermis, getPermisById, getTotalPermis, getMontantTotalQuittances, findPermisBetweenDates, deletePermis }; 

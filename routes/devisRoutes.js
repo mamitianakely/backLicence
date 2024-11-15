@@ -1,7 +1,8 @@
 const express= require('express');
 const router = express.Router();
 const authenticateToken = require('../middleware/authMiddleware');
-const { addDevis, getAllDevis, deleteDevis, getTotalDevis, fetchAverageDevis, fetchMinMaxDevis } = require('../controllers/devisController');
+const { addDevis, getAllDevis, deleteDevis, getTotalDevis, fetchAverageDevis, 
+    fetchMinMaxDevis, generateDevisPdf, markDevisAsPaid, addPermis } = require('../controllers/devisController');
 
 // Applique le middleware à toutes les routes
 router.use(authenticateToken);
@@ -23,6 +24,18 @@ router.get('/average', fetchAverageDevis);
 
 // Route pour min et max de devis
 router.get('/minmax', fetchMinMaxDevis);
+
+// Route pour la facture
+router.get('/downpdf/:numDevis', generateDevisPdf);
+
+// Route pour marquer le devis comme payé et ouvrir le modal
+router.put('/:numDevis/payer', markDevisAsPaid);
+
+// // Route pour enregistrer les détails du permis (numQuittance et datePermis)
+// router.post('/:numDevis/permis', addPermis);
+
+// Route pour ajouter un permis
+router.post('/permis', addPermis);
 
 
 module.exports = router;
