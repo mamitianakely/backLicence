@@ -1,5 +1,5 @@
 const pool = require('../config/database').pool; 
-const bcrypt = require('bcryptjs'); // Remplacez bcrypt par bcryptjs
+const bcrypt = require('bcryptjs');
 
 // Fonction pour créer un utilisateur avec hachage de mot de passe
 const createUser = async (username, password, role, fullName, email, phone) => {

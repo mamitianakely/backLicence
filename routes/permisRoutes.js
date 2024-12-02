@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../middleware/authMiddleware');
-const { getAllPermis, generatePermisPdf, fetchTotalPermis, 
-    getTauxApprobation, fetchMontantTotalQuittances, getPermisBetweenDates, deletePermisController } = require('../controllers/permisController');
+const { getAllPermis, fetchTotalPermis, 
+    getTauxApprobation, fetchMontantTotalQuittances, getPermisByProjectSize,
+    getPermisBetweenDates, deletePermisController, generatePermisPdf } = require('../controllers/permisController');
 
 
 // Applique le middleware à toutes les routes
@@ -28,5 +29,11 @@ router.get('/search', getPermisBetweenDates);
 
 // Route pour supprimer un permis
 router.delete('/:numPermis', deletePermisController);
+
+// // Route pour voir un aperçu du PDF (sans téléchargement)
+// router.get('/pdfPreview/:numPermis', generatePermisPdfPreview);
+
+// Route pour obtenir la répartition des permis par taille de projet
+router.get('/permistaille/repartition', getPermisByProjectSize);
 
 module.exports = router;

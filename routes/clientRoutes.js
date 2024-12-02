@@ -3,7 +3,7 @@ const router = express.Router();
 const authenticateToken = require('../middleware/authMiddleware');
 const { addClient, getAllClients, modifyClient,
      getClientById, deleteClient, getClientStats, fetchClientsDistributionByRegion,
-     getClientsWithoutDemands} = require('../controllers/clientController'); // Importer le contrôleur
+     getClientsWithoutDemands, listClientsWithDemandes} = require('../controllers/clientController'); // Importer le contrôleur
 
 
 // Applique le middleware à toutes les routes
@@ -22,7 +22,7 @@ router.get('/:numChrono', getClientById);  // Ajout de cette route pour un clien
 router.put('/:numChrono', modifyClient);
 
 // Route pour supprimer un client
-router.delete('/:numChrono', deleteClient); // Nouvelle route pour supprimer un client
+router.delete('/:numChrono', deleteClient);
 
 // Route pour obtenir le nombre total de clients
 router.get('/stats/total', getClientStats);
@@ -32,5 +32,8 @@ router.get('/stats/distribution', fetchClientsDistributionByRegion);
 
 // Route pour obtenir le nombre de clients sans demande
 router.get('/stats/sans-demands', getClientsWithoutDemands);
+
+// Route pour récupérer les clients avec leur statut de demande
+router.get('/stats/withdemandes', listClientsWithDemandes);
 
 module.exports = router;

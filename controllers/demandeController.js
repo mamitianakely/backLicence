@@ -1,7 +1,7 @@
 const { createDemande, getDemandes, getDemandeByIdFromModel, updateDemande, 
   deleteDemandeById, getPendingDemandesCount, getDemandesByTypeAndMonth, 
   getDemandesByMonth, getTotalDemandesFromDB, getCountOfDemandsAwaitingDevisFromDB, getConversionRateFromDB,
-  calculateDemandsWithAvisPercentage, findDemandsBetweenDates  } = require('../models/demandeModel');
+  calculateDemandsWithAvisPercentage, findDemandsBetweenDates, fetchDemandesWithDevis  } = require('../models/demandeModel');
 
 // créer une demande
 const addDemande = async (req, res) => {
@@ -79,7 +79,7 @@ const getDemandesStatsByTypeAndMonth = async (req, res) => {
   }
 };
 
-
+// Demande par mois
 const fetchDemandesByMonth = async (req, res) => {
   try {
       const demandes = await getDemandesByMonth();
@@ -101,7 +101,7 @@ const getTotalDemandes = async (req, res) => {
   }
 };
 
-
+// demandes sans devis
 const getCountOfDemandsAwaitingDevis = async (req, res) => {
   try {
     const demandsAwaitingDevisCount = await getCountOfDemandsAwaitingDevisFromDB();
@@ -149,8 +149,16 @@ const getDemandsBetweenDates = async (req, res) => {
   }
 };
 
-
+const listDemandesWithDevis = async (req, res) => {
+  try {
+    const demandes = await fetchDemandesWithDevis();
+    res.status(200).json(demandes);
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi des demandes:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
 
 module.exports = { addDemande, getAllDemandes, getDemandeById, modifyDemande, getDemandsBetweenDates,
-  deleteDemande, getPendingDemandes, getDemandesStatsByTypeAndMonth, fetchDemandesByMonth, 
+  deleteDemande, getPendingDemandes, getDemandesStatsByTypeAndMonth, fetchDemandesByMonth, listDemandesWithDevis,
   getTotalDemandes, getCountOfDemandsAwaitingDevis, getConversionRate, getDemandsWithAvisPercentage };

@@ -1,4 +1,5 @@
-const { getPermis, getPermisById, getTotalPermis, getMontantTotalQuittances, findPermisBetweenDates, deletePermis } = require('../models/permisModel');
+const { getPermis, getPermisById, getTotalPermis, getMontantTotalQuittances, 
+    findPermisBetweenDates, deletePermis, fetchPermisByProjectSize  } = require('../models/permisModel');
 const { getTotalDemandesFromDB } = require('../models/demandeModel');
 const PDFDocument = require('pdfkit');
 const path = require('path');
@@ -13,7 +14,7 @@ const getAllPermis = async (req, res) => {
     }
 };
 
-
+// télécharger un permis
 const generatePermisPdf = async (req, res) => {
     const { numPermis } = req.params;
 
@@ -188,7 +189,22 @@ const deletePermisController = async (req, res) => {
     }
   };
   
+// Contrôleur pour récupérer les permis classés par taille de projet
+const getPermisByProjectSize = async (req, res) => {
+    try {
+      const permisData = await fetchPermisByProjectSize ();
+      res.status(200).json({
+        success: true,
+        data: permisData,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la récupération des permis',
+        error: error.message,
+      });
+    }
+  };
 
-
-module.exports = { getAllPermis, generatePermisPdf, fetchTotalPermis, getTauxApprobation, 
-    fetchMontantTotalQuittances, getPermisBetweenDates, deletePermisController };
+module.exports = { getAllPermis, fetchTotalPermis, getTauxApprobation, getPermisByProjectSize,
+    fetchMontantTotalQuittances, getPermisBetweenDates, deletePermisController, generatePermisPdf};

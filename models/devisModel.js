@@ -40,17 +40,6 @@ const fetchTotalDevisFromDB  = async () => {
     }
 };
 
-const getDevisById = async (numDevis) => {
-    try {
-      const query = `SELECT v."numDevis", d."numDemande", c."nomClient", d."typeDemande", d."dateDemande", d."lieu", v."prixLongueur", v."prixLargeur", v."montant" 
-      FROM demande d JOIN client c ON d."numChrono" = c."numChrono" JOIN devis v ON d."numDemande" = v."numDemande" WHERE v."numDevis" = $1 AND v.etat = 'non payé'`;
-      const result = await pool.query(query, [numDevis]);
-      return result.rows[0];
-    } catch (error) {
-      console.error('Erreur lors de la récupération:', error);
-      throw error;
-    }
-  };
 
 // Montant moyen
 const getAverageDevis = async () => {
@@ -122,6 +111,63 @@ const createPermis = async (numDevis, numQuittance, datePermis) => {
 };
 
 
-module.exports = { createDevis, getDevis, deleteDevisById, fetchTotalDevisFromDB, getAverageDevis, getMinMaxDevis, getDevisById, 
-    updateDevisStateToPaid, createPermis
+// Récupérer les informations d'un devis à partir de son ID
+const getDevisById = async (numDevis) => {
+    const query = `
+        SELECT v."numDevis", d."numDemande", c."nomClient", d."typeDemande", d."dateDemande", d."lieu", v."prixLongueur", v."prixLargeur", v."montant" 
+       FROM demande d JOIN client c ON d."numChrono" = c."numChrono" JOIN devis v ON d."numDemande" = v."numDemande" WHERE v."numDevis" = $1 AND v.etat = 'non payé'
+    `;
+    const { rows } = await pool.query(query, [numDevis]);
+    return rows[0]; // Retourne un seul résultat
+};
+
+// demande par état de devis
+const getDemandsByDevisState = async () => {
+    const query = `SELECT d.etat, COUNT(*) AS total FROM devis d JOIN demande dm ON d."numDemande" = dm."numDemande" GROUP BY d.etat;`;
+    const result = await pool.query(query);
+    return result.rows;
+  };
+
+// Récupérer la liste des devis triés par nomClient
+const getDevisSortedByClientName = async () => {
+    try {
+        const result = await pool.query(`
+            SELECT devis."numDevis", client."nomClient", devis."prixLongueur", devis."prixLargeur", devis."montant", devis."etat"
+            FROM devis JOIN demande ON devis."numDemande" = demande."numDemande" JOIN client ON demande."numChrono" = client."numChrono"
+            ORDER BY client."nomClient" DESC;
+        `);
+        return result.rows;
+    } catch (err) {
+        console.error('Error fetching sorted devis:', err);
+        throw err;
+    }
+};
+
+// Fonction pour récupérer les devis avec l'information du permis et du client
+const fetchDevisWithPermisAndClient = async () => {
+    try {
+        // console.log('Lancement de la requête pour récupérer les devis avec permis et client');
+        const result = await pool.query(`
+            SELECT d."numDevis", d."numDemande", d."prixLongueur", d."prixLargeur", 
+                   d."montant", d."etat", 
+                   c."nomClient",  -- Ajout du nomClient depuis la table client
+                   CASE 
+                       WHEN p."numPermis" IS NOT NULL THEN true
+                       ELSE false
+                   END AS "hasPermis"
+            FROM devis d
+            LEFT JOIN permis p ON d."numDevis" = p."numDevis"
+            LEFT JOIN demande dem ON dem."numDemande" = d."numDemande"  -- Jointure avec la table demande
+            LEFT JOIN client c ON c."numChrono" = dem."numChrono"; 
+        `);
+        // console.log('Résultat de la requête:', result.rows);
+        return result.rows; // Retourner les devis avec les informations sur le permis et le client
+    } catch (error) {
+        console.error('Erreur lors de la récupération des devis:', error);
+        throw error;
+    }
+};
+
+module.exports = { createDevis, getDevis, deleteDevisById, fetchTotalDevisFromDB, getAverageDevis, getMinMaxDevis, 
+    updateDevisStateToPaid, createPermis, getDevisById, getDemandsByDevisState, getDevisSortedByClientName, fetchDevisWithPermisAndClient
  };

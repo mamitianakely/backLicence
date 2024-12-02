@@ -74,6 +74,28 @@ const getClientsWithoutDemandsCount = async () => {
   }
 };
 
+// Client avec
+const fetchClientsWithDemandes = async () => {
+  try {
+    const result = await pool.query(`
+      SELECT c."numChrono", c."nomClient", c."adresse", c."contact",
+             CASE 
+                 WHEN EXISTS (
+                     SELECT 1 FROM demande d WHERE d."numChrono" = c."numChrono"
+                 ) THEN true
+                 ELSE false
+             END AS "hasDemande"
+      FROM client c;
+    `);
+    return result.rows; // Retourne les résultats sans utiliser res
+  } catch (error) {
+    console.error('Erreur lors de la récupération des clients:', error);
+    throw error; // Relance l'erreur pour qu'elle soit gérée ailleurs
+  }
+};
+
+
 
 module.exports = { createClient, getClients, updateClient, getClientByIdFromModel, 
-  deleteClientById, getTotalClients,  getClientsDistributionByRegion, getClientsWithoutDemandsCount };
+  deleteClientById, getTotalClients,  getClientsDistributionByRegion, 
+  getClientsWithoutDemandsCount, fetchClientsWithDemandes  };

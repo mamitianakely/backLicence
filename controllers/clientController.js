@@ -1,5 +1,6 @@
 const { createClient, getClients, updateClient, getClientByIdFromModel, 
-  deleteClientById, getTotalClients, getClientsDistributionByRegion, getClientsWithoutDemandsCount, getClientsByAddressLetter } = require('../models/clientModel'); // Importation des fonctions nécessaires
+  deleteClientById, getTotalClients, getClientsDistributionByRegion, 
+  getClientsWithoutDemandsCount, fetchClientsWithDemandes  } = require('../models/clientModel'); // Importation des fonctions nécessaires
 
 // Créer un nouveau client
 const addClient = async (req, res) => {
@@ -95,6 +96,15 @@ const getClientsWithoutDemands = async (req, res) => {
   }
 };
 
+const listClientsWithDemandes = async (req, res) => {
+  try {
+    const clients = await fetchClientsWithDemandes(); // Appel du modèle
+    res.status(200).json(clients);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des clients avec leurs demandes :", error.message);
+    res.status(500).json({ message: "Erreur interne du serveur" });
+  }
+};
 
 module.exports = { addClient, getAllClients, modifyClient, getClientById, deleteClient, 
-  getClientStats, fetchClientsDistributionByRegion, getClientsWithoutDemands };
+  getClientStats, fetchClientsDistributionByRegion, getClientsWithoutDemands, listClientsWithDemandes };

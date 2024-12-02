@@ -27,10 +27,10 @@ const getDemandeByIdFromModel = async (numDemande) => {
 
 // Mettre à jour un demande existant
 const updateDemande = async (numDemande, demandeData) => {
-  const { dateDemande, typeDemande, longueur, largeur, lieu } = demandeData;
+  const { typeDemande, longueur, largeur, lieu } = demandeData;
   const result = await pool.query(
-    'UPDATE demande SET "dateDemande" = $1, "typeDemande" = $2, "longueur" = $3, "largeur" = $4, "lieu" = $5 WHERE "numDemande" = $6 RETURNING *',
-    [dateDemande, typeDemande, longueur, largeur,lieu, numDemande]
+    'UPDATE demande SET "typeDemande" = $1, "longueur" = $2, "largeur" = $3, "lieu" = $4 WHERE "numDemande" = $5 RETURNING *',
+    [typeDemande, longueur, largeur,lieu, numDemande]
   );
   return result.rows[0];
 };
@@ -144,8 +144,19 @@ const findDemandsBetweenDates = async (startDate, endDate) => {
   }
 };
 
-
+const fetchDemandesWithDevis = async () => {
+  try {
+    const result = await pool.query(`
+      SELECT d."numDemande", c."nomClient", d."dateDemande", d."typeDemande", d."longueur", d."largeur", d."lieu",
+             CASE WHEN EXISTS (SELECT 1 FROM devis dv WHERE dv."numDemande" = d."numDemande") THEN true ELSE false END AS "hasDevis"
+      FROM demande d LEFT JOIN client c ON d."numChrono" = c."numChrono";`);
+    return result.rows;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des demandes:', error);
+    throw error;
+  }
+};
 
 module.exports = { createDemande, getDemandes, getDemandeByIdFromModel, updateDemande, deleteDemandeById, 
   getPendingDemandesCount, getDemandesByTypeAndMonth, getDemandesByMonth, findDemandsBetweenDates,
-  getTotalDemandesFromDB, getCountOfDemandsAwaitingDevisFromDB, getConversionRateFromDB, calculateDemandsWithAvisPercentage };
+  getTotalDemandesFromDB, getCountOfDemandsAwaitingDevisFromDB, getConversionRateFromDB, calculateDemandsWithAvisPercentage, fetchDemandesWithDevis };

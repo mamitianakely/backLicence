@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../middleware/authMiddleware');
-const { addDemande, getAllDemandes, getDemandeById, modifyDemande, 
-    deleteDemande, getPendingDemandes, getDemandesStatsByTypeAndMonth, 
-    fetchDemandesByMonth,  getTotalDemandes, getCountOfDemandsAwaitingDevis, getConversionRate 
-    , getDemandsWithAvisPercentage, getDemandsBetweenDates} = require('../controllers/demandeController');
+const { addDemande, getAllDemandes, getDemandeById, modifyDemande, deleteDemande, getPendingDemandes, getDemandesStatsByTypeAndMonth, 
+    fetchDemandesByMonth,  getTotalDemandes, getCountOfDemandsAwaitingDevis, getConversionRate , getDemandsWithAvisPercentage, getDemandsBetweenDates, listDemandesWithDevis} = require('../controllers/demandeController');
 
 
 // Applique le middleware à toutes les routes
@@ -47,6 +45,8 @@ router.get('/stats/conversion-rate', getConversionRate);
 router.get('/stats/percentage-with-avis', getDemandsWithAvisPercentage);
 
 // Route pour rechercher des demands entre deux dates
-router.get('/searchDateDemands', getDemandsBetweenDates);
+router.get('/search/searchDateDemands', getDemandsBetweenDates);
+
+router.get('/stats/withdevis', listDemandesWithDevis);
 
 module.exports = router;

@@ -8,6 +8,7 @@ const getPermis = async () => {
   return result.rows;
 }
 
+// Recuperer le permis pour le pdf
 const getPermisById = async (numPermis) => {
   try {
     const query = `
@@ -36,7 +37,7 @@ const getTotalPermis = async () => {
 };
 const getMontantTotalQuittances = async () => {
   try {
-    const query = `SELECT SUM(d.montant) AS "montantTotal" FROM permis p JOIN "avisPaiement" a ON p."numAvis" = a."numAvis" JOIN devis d ON a."numDevis" = d."numDevis"`;
+    const query = `SELECT SUM(d.montant) AS "montantTotal" FROM permis p JOIN "devis" d ON p."numDevis" = d."numDevis" WHERE "etat" = 'payé'`;
     const result = await pool.query(query);
     return result.rows[0].montantTotal; // Renvoyer uniquement le montant total
   } catch (error) {
@@ -48,8 +49,8 @@ const getMontantTotalQuittances = async () => {
 const findPermisBetweenDates = async (startDate, endDate) => {
   try {
     const result = await pool.query(
-      `SELECT p."numPermis", p."numAvis", p."numQuittance", p."datePermis", c."nomClient", d.montant, e.lieu  FROM permis p
-       LEFT JOIN "avisPaiement" a ON p."numAvis" = a."numAvis" LEFT JOIN devis d ON a."numDevis" = d."numDevis" LEFT JOIN demande e ON d."numDemande" = e."numDemande"
+      `SELECT p."numPermis", p."numDevis", p."numQuittance", p."datePermis", c."nomClient", d.montant, e.lieu  FROM permis p
+       LEFT JOIN devis d ON p."numDevis" = d."numDevis" LEFT JOIN demande e ON d."numDemande" = e."numDemande"
        LEFT JOIN client c ON e."numChrono" = c."numChrono" WHERE p."datePermis" BETWEEN $1 AND $2`,
       [startDate, endDate]
     );
@@ -66,5 +67,19 @@ const deletePermis = async (numPermis) => {
   return result.rows;  // Renvoie les données du permis supprimé
 };
 
+// Fonction pour obtenir la répartition des permis par taille de projet
+const fetchPermisByProjectSize = async () => {
+  const query = `SELECT CASE WHEN d.longueur < 50 AND d.largeur < 50 THEN 'Petit projet' WHEN d.longueur >= 50 AND d.longueur < 100 AND d.largeur >= 50 AND d.largeur < 100 THEN 'Moyen projet'
+            WHEN d.longueur >= 100 AND d.largeur >= 100 THEN 'Grand projet' ELSE 'Non classifié' END AS taille_projet, COUNT(p."numPermis") AS nombre_permis
+    FROM permis p JOIN devis v ON p."numDevis" = v."numDevis" JOIN demande d ON v."numDemande" = d."numDemande" GROUP BY taille_projet ORDER BY taille_projet;`;
 
-module.exports = { getPermis, getPermisById, getTotalPermis, getMontantTotalQuittances, findPermisBetweenDates, deletePermis }; 
+  try {
+    const result = await pool.query(query);
+    return result.rows; // Retourne les résultats de la requête
+  } catch (error) {
+    throw error;
+  }
+};
+
+module.exports = { getPermis, getTotalPermis, getMontantTotalQuittances, 
+  findPermisBetweenDates, deletePermis, getPermisById, fetchPermisByProjectSize  }; 
