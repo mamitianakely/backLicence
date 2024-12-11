@@ -69,7 +69,7 @@ const generatePermisPdf = async (req, res) => {
 
         // Texte principal en pleine largeur
         const mainTextWidth = pageWidth - 80; // Largeur totale de la page moins les marges
-        doc.fontSize(12).font('Helvetica').text(
+        doc.fontSize(12).font('Helvetica').lineGap(4).text(
             `dia manome alalana an'i ${permisData.nomClient}, monina ao ${permisData.adresse}, hahazo hanorina trano mirefy ${permisData.longueur} ny halavany, ` +
             `${permisData.largeur} ny sakany, ao amin'ny tany ${permisData.lieu}`,
             { align: 'justify', width: mainTextWidth } // Ajustement de la largeur
@@ -79,7 +79,7 @@ const generatePermisPdf = async (req, res) => {
         doc.moveDown(1.5); // Espacement pour le texte principal
         doc.fontSize(12).font('Helvetica-Bold').text("Marihana fa : ", { underline: true });
         doc.moveDown(0.5);
-        doc.fontSize(12).font('Helvetica').text(
+        doc.fontSize(12).font('Helvetica').lineGap(4).text(
             "Tsy mahazo manao asa hafa ankoatr'izay nahazoany alalana ny mpangataka ary tompon'andraikitra tanteraka " +
             "amin'izay rehetra mety hitranga vokatr'izany. Omena azy ity fanomezan-dalana ity mba hampiasainy sy hanan-kery amin'izay ilàna azy.",
             { align: 'justify', width: mainTextWidth } // Ajustement de la largeur
@@ -95,12 +95,12 @@ const generatePermisPdf = async (req, res) => {
 
 
         // Positionner le contenu à droite (FANOMEZAN-DALANA) au même niveau que le logo
-        const rightTextX = 300; // Position X pour le texte à droite
+        const rightTextX = 250; // Position X pour le texte à droite
         doc.fontSize(12).font('Helvetica-Bold').text("FANOMEZAN-DALANA", rightTextX, sameLevelY, { align: 'left' });
         doc.fontSize(12).font('Helvetica-Bold').text(`N°${permisData.numDemande} - CUF- SDU & H - 24`, rightTextX, sameLevelY + 20, { align: 'left' });
         doc.fontSize(12).font('Helvetica-Bold').text("Mankato : FANORENANA TRANO", rightTextX, sameLevelY + 40, { align: 'left' });
-        doc.fontSize(12).font('Helvetica').text(`Araka ny fangatahana nataon'i ${permisData.nomClient} Noraiketina tamin'ny ${new Date(permisData.dateDemande).toLocaleDateString('fr-FR')}, , laharana- ${permisData.numPermis} Araka ny quittance ${permisData.numQuittance}, tamin'ny ${new Date(permisData.datePermis).toLocaleDateString('fr-FR')}`, rightTextX, sameLevelY + 60, { align: 'left' });
-        doc.moveDown(2);
+        doc.fontSize(12).font('Helvetica').lineGap(4).text(`Araka ny fangatahana nataon'i ${permisData.nomClient}. Noraiketina tamin'ny ${new Date(permisData.dateDemande).toLocaleDateString('fr-FR')}, laharana- ${permisData.numPermis} Araka ny quittance ${permisData.numQuittance}, tamin'ny ${new Date(permisData.datePermis).toLocaleDateString('fr-FR')}`, rightTextX, sameLevelY + 60, { align: 'justify' });
+        doc.moveDown(3);
 
         // Terminer le document PDF
         doc.pipe(res);

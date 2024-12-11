@@ -28,12 +28,31 @@ const getDemandeByIdFromModel = async (numDemande) => {
 // Mettre à jour un demande existant
 const updateDemande = async (numDemande, demandeData) => {
   const { typeDemande, longueur, largeur, lieu } = demandeData;
-  const result = await pool.query(
-    'UPDATE demande SET "typeDemande" = $1, "longueur" = $2, "largeur" = $3, "lieu" = $4 WHERE "numDemande" = $5 RETURNING *',
-    [typeDemande, longueur, largeur,lieu, numDemande]
+
+  // Étape 1 : Mettre à jour la table "demande"
+  await pool.query(
+    `
+    UPDATE demande
+    SET "typeDemande" = $1, "longueur" = $2, "largeur" = $3, "lieu" = $4
+    WHERE "numDemande" = $5
+    `,
+    [typeDemande, longueur, largeur, lieu, numDemande]
   );
+
+  // Étape 2 : Récupérer la demande mise à jour avec le client
+  const result = await pool.query(
+    `
+    SELECT demande.*, client."nomClient"
+    FROM demande
+    JOIN client ON demande."numChrono" = client."numChrono"
+    WHERE demande."numDemande" = $1
+    `,
+    [numDemande]
+  );
+
   return result.rows[0];
 };
+
 
 // Supprimer un demande existant
 const deleteDemandeById = async (numDemande) => {

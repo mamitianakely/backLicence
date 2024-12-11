@@ -40,13 +40,21 @@ const getDemandeById = async (req, res) => {
 // Mettre à jour un demande
 const modifyDemande = async (req, res) => {
   const { numDemande } = req.params;
+  console.log("Request Params:", numDemande);
+  console.log("Request Body:", req.body);
+
   try {
     const updatedDemande = await updateDemande(numDemande, req.body);
+    console.log("Updated Demande:", updatedDemande);
+
     res.json(updatedDemande);
   } catch (error) {
+    console.error("Error updating demande:", error);
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 // Supprimer un demande
 const deleteDemande = async (req, res) => {
